@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Result</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding-top: 20px;
+        }
+        .highlighted-images {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .highlighted-images img {
+            margin: 10px;
+            max-width: 100%;
+            height: auto;
+        }
+        .btn-upload {
+            margin-top: 20px;
+        }
+        .box {
+            border: 2px solid black;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .box-name {
+            background-color: lightblue;
+        }
+        .box-aadhar {
+            background-color: lightgreen;
+        }
+        .box-dob {
+            background-color: lightcoral;
+        }
+        .box-pan {
+            background-color: lightyellow;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="text-center mb-4">
+            <h1>Analysis Result</h1>
+        </header>
+        <div class="alert alert-info text-center">
+            {{ message }}
+        </div>
+        {% if highlighted_images %}
+            <h2 class="text-center">Highlighted Pages</h2>
+            <div class="highlighted-images">
+                {% for image_url in highlighted_images %}
+                    <img src="{{ image_url }}" alt="Highlighted Page">
+                {% endfor %}
+            </div>
+            <div class="text-center">
+                <a href="{% url 'download_highlighted_images' file_id 'pdf' %}" class="btn btn-primary">Download as PDF</a>
+                <a href="{% url 'download_highlighted_images' file_id 'zip' %}" class="btn btn-secondary">Download as ZIP</a>
+            </div>
+        {% endif %}
+        {% if extracted_details %}
+            <h2 class="text-center">Extracted Details</h2>
+            <div>
+                {% for name in extracted_details.names %}
+                    <div class="box box-name">
+                        Name: {{ name }}
+                    </div>
+                {% endfor %}
+                {% for aadhar_no in extracted_details.aadhar_numbers %}
+                    <div class="box box-aadhar">
+                        Aadhar Number: {{ aadhar_no }}
+                    </div>
+                {% endfor %}
+                {% for dob in extracted_details.dobs %}
+                    <div class="box box-dob">
+                        Date of Birth: {{ dob }}
+                    </div>
+                {% endfor %}
+                {% for pan_no in extracted_details.pan_numbers %}
+                    <div class="box box-pan">
+                        Pan Number: {{ pan_no }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if combined_details %}
+            <h2 class="text-center">Detected Details by Page</h2>
+            {% for page_num, details in combined_details.items %}
+                <div class="box">
+                    <h3 class="text-center">Page {{ page_num }}</h3>
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            Step-by-Step Process Status
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                Aadhar Details
+                                {% if details.status.aadhar %}
+                                <span class="badge badge-success">✓</span>
+                                {% else %}
+                                <span class="badge badge-secondary">✗</span>
+                                {% endif %}
+                            </li>
+                            <li class="list-group-item">
+                                Faces
+                                {% if details.status.faces %}
+                                <span class="badge badge-success">✓</span>
+                                {% else %}
+                                <span class="badge badge-secondary">✗</span>
+                                {% endif %}
+                            </li>
+                            <li class="list-group-item">
+                                QR Code
+                                {% if details.status.qr %}
+                                <span class="badge badge-success">✓</span>
+                                {% else %}
+                                <span class="badge badge-secondary">✗</span>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+                    {% if details.aadhar %}
+                        <div class="box box-aadhar">
+                            <strong>Aadhar Details:</strong>
+                            <ul>
+                                {% for detail in details.aadhar %}
+                                    <li>{{ detail.0 }}: {{ detail.1|join:", " }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    {% if details.faces %}
+                        <div class="box box-face">
+                            <strong>Faces Detected:</strong> {{ details.faces|length }} face(s)
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% endif %}
+        <div class="text-center">
+            <a href="{% url 'upload_file' %}" class="btn btn-primary btn-upload">Upload Another File</a>
+        </div>
+        <footer class="text-center mt-4">
+            <p>&copy; 2024 PDF QR Code Analyzer</p>
+        </footer>
+    </div>
+</body>
+</html>
