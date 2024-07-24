@@ -60,6 +60,7 @@
             <div class="text-center">
                 <a href="{% url 'download_highlighted_images' file_id 'pdf' %}" class="btn btn-primary">Download as PDF</a>
                 <a href="{% url 'download_highlighted_images' file_id 'zip' %}" class="btn btn-secondary">Download as ZIP</a>
+                <a href="{% url 'download_word_file' file_id %}" class="btn btn-success">Download as Word</a>
             </div>
         {% endif %}
         {% if extracted_details %}
@@ -86,6 +87,10 @@
                     </div>
                 {% endfor %}
             </div>
+        {% endif %}
+        {% if modified_text %}
+            <h2>Modified Text Content</h2>
+            <pre>{{ modified_text }}</pre>
         {% endif %}
         {% if combined_details %}
             <h2 class="text-center">Detected Details by Page</h2>
