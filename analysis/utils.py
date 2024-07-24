@@ -145,7 +145,18 @@ def find_details_in_text(text):
     details["dobs"] = dob_pattern.findall(text)
     details["pan_numbers"] = pan_pattern.findall(text)
 
-    return details
+    # Replace detected details with "XXXXX"
+    text = name_pattern.sub("XXXXX", text)
+    text = aadhar_pattern.sub("XXXXX", text)
+    text = dob_pattern.sub("XXXXX", text)
+    text = pan_pattern.sub("XXXXX", text)
+
+    return details, text
+
+def save_text_to_word(text, file_path):
+    doc = Document()
+    doc.add_paragraph(text)
+    doc.save(file_path)
 
 
 def draw_filled_boxes(image, details):
@@ -240,7 +251,7 @@ def analyze_pdf(pdf_path, output_folder, screen_width=1280, screen_height=720):
     aadhar_details = []
     highlighted_pages = []
     face_details = []
-    #extracted_text_details = {}
+
     page_statuses = {}
 
 
@@ -249,7 +260,7 @@ def analyze_pdf(pdf_path, output_folder, screen_width=1280, screen_height=720):
             'qr': False,
             'aadhar': False,
             'faces': False,
-            #'text_extracted': False
+
         }
         start_time = time.time()
         qrcode_result = detect_qr_in_image(image)
@@ -257,13 +268,7 @@ def analyze_pdf(pdf_path, output_folder, screen_width=1280, screen_height=720):
         faces = detect_faces(image)
         elapsed_time = time.time() - start_time
 
-        # Extract text details from the current page's image
-        #text = extract_text_from_image(image)
-        #text_details = find_details_in_text(text)
-        #extracted_text_details[page_num] = text_details
 
-
-        #extracted_details = extract_text_details_from_pdf(pdf_path)
         print(f"Processing page {page_num}, elapsed time: {elapsed_time:.2f} seconds")
         # Print the function call details
         print("Calling draw_tags with the following parameters:")
@@ -294,8 +299,6 @@ def analyze_pdf(pdf_path, output_folder, screen_width=1280, screen_height=720):
             face_details.append((page_num, faces))
             page_statuses[page_num]['faces'] = True
 
-        #if text_details:
-         #   page_statuses[page_num]['text_extracted'] = True
 
     result_message = []
     if qr_detected:
